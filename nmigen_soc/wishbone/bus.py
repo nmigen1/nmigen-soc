@@ -108,7 +108,7 @@ class Interface(Record):
         Optional. Corresponds to Wishbone signal ``BTE_O`` (initiator) or ``BTE_I`` (target).
     """
     def __init__(self, *, addr_width, data_width, granularity=None, features=frozenset(),
-                 name=None):
+                 name=None, src_loc_at=0):
         if granularity is None:
             granularity  = data_width
         _check_interface(addr_width, data_width, granularity, features)
@@ -141,7 +141,7 @@ class Interface(Record):
             layout += [("cti", CycleType,    Direction.FANOUT)]
         if "bte" in features:
             layout += [("bte", BurstTypeExt, Direction.FANOUT)]
-        super().__init__(layout, name=name, src_loc_at=1)
+        super().__init__(layout, name=name, src_loc_at=src_loc_at+1)
 
     @property
     def memory_map(self):
