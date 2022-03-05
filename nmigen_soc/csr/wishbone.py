@@ -65,6 +65,9 @@ class WishboneCSRBridge(Elaboratable):
 
         m = Module()
 
+        # cycle through at the granularity of the Wisbone Bus, updating the CSR
+        # note: cycle is up to 1 more than the wb.sel granularity.
+        # use cycle to construct the CSR bus address.
         cycle = Signal(range(len(wb_bus.sel) + 1))
         m.d.comb += csr_bus.addr.eq(Cat(cycle[:log2_int(len(wb_bus.sel))], wb_bus.adr))
 
@@ -73,6 +76,7 @@ class WishboneCSRBridge(Elaboratable):
                 def segment(index):
                     return slice(index * wb_bus.granularity, (index + 1) * wb_bus.granularity)
 
+                # cycle between 0..len(wb.sel)-1
                 for index, sel_index in enumerate(wb_bus.sel):
                     with m.Case(index):
                         if index > 0:
@@ -83,11 +87,12 @@ class WishboneCSRBridge(Elaboratable):
                         m.d.comb += csr_bus.w_stb.eq(sel_index & wb_bus.we)
                         m.d.sync += cycle.eq(index + 1)
 
+                # cycle is len(wb.sel). use this to send an ack
                 with m.Default():
                     m.d.sync += wb_bus.dat_r[segment(index)].eq(csr_bus.r_data)
                     m.d.sync += wb_bus.ack.eq(1)
-                    m.d.sync += cycle.eq(0)
 
+        # one clock later, clear ack and reset cycle back to zero
         with m.If(wb_bus.ack):
             m.d.sync += cycle.eq(0)
             m.d.sync += wb_bus.ack.eq(0)
