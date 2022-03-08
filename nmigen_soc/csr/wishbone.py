@@ -12,21 +12,24 @@ __all__ = ["WishboneCSRBridge"]
 class WishboneCSRBridge(Elaboratable):
     """Wishbone to CSR bridge.
 
-    A bus bridge for accessing CSR registers from Wishbone. This bridge supports any Wishbone
-    data width greater or equal to CSR data width and performs appropriate address translation.
+    A bus bridge for accessing CSR registers from Wishbone. This bridge
+    supports any Wishbone data width greater or equal to CSR data width
+    and performs appropriate address translation.
 
     Latency
     -------
 
-    Reads and writes always take ``self.data_width // csr_bus.data_width + 1`` cycles to complete,
-    regardless of the select inputs. Write side effects occur simultaneously with acknowledgement.
+    Reads and writes always take ``self.data_width // csr_bus.data_width + 1``
+    cycles to complete, regardless of the select inputs. Write side effects
+    occur simultaneously with acknowledgement.
 
     Parameters
     ----------
     csr_bus : :class:`..csr.Interface`
         CSR bus driven by the bridge.
     data_width : int or None
-        Wishbone bus data width. If not specified, defaults to ``csr_bus.data_width``.
+        Wishbone bus data width. If not specified, defaults to
+        ``csr_bus.data_width``.
     name : str
         Window name. Optional.
 
@@ -58,8 +61,9 @@ class WishboneCSRBridge(Elaboratable):
         wb_map = MemoryMap(addr_width=csr_bus.addr_width,
                            data_width=csr_bus.data_width,
                            name=name)
-        # Since granularity of the Wishbone interface matches the data width of the CSR bus,
-        # no width conversion is performed, even if the Wishbone data width is greater.
+        # Since granularity of the Wishbone interface matches the data width
+        # of the CSR bus, no width conversion is performed, even if the
+        # Wishbone data width is greater.
         wb_map.add_window(self.csr_bus.memory_map)
         self.wb_bus.memory_map = wb_map
 
